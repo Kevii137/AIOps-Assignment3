@@ -1,6 +1,7 @@
 # Allow-list: ignore everything at the top level, then re-include only the submission files.
 /*
 !/.gitignore
+!/README.md
 
 # pipeline code (not __pycache__)
 !/apps/
