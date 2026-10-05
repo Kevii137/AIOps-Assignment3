@@ -1,0 +1,27 @@
+# Allow-list: ignore everything at the top level, then re-include only the submission files.
+/*
+!/.gitignore
+
+# pipeline code (not __pycache__)
+!/apps/
+/apps/*
+!/apps/*.py
+
+# cluster configuration
+!/spark-cluster/
+!/ray-cluster/
+
+# results: screenshots and terminal output only
+!/results/
+/results/*
+!/results/screenshots/
+!/results/*.txt
+
+# report: the compiled PDF only
+!/report/
+/report/*
+!/report/main.pdf
+
+# analysis
+!/benchmark_analysis.ipynb
+!/compare_outputs.py

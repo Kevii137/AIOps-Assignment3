@@ -1,0 +1,82 @@
+Ray version: 2.59.0 | cluster CPUs: 4.0 | months: [1, 2, 3, 4, 5, 6]
+/opt/spark-apps/ray_clean.py:76: DeprecationWarning: `columns=` on `read_parquet` is deprecated. Use `ray.data.read_parquet(path).select_columns([...])` instead.
+  raw = rd.read_parquet(trip_files(months), columns=list(SELECT_COLS))
+2026-10-04 12:37:45,496	WARNING __init__.py:28 -- Progress bars disabled. To enable, set `ray.data.DataContext.get_current().enable_progress_bars = True`.
+[ingest]   20,332,093 raw rows from 6 file(s)  (5.86s)
+[cleanse]  17,870,679 rows kept (2,461,414 dropped)  (49.22s)
+[transform] 17,865,181 rows after join + UDF  (796.63s)
+
+--- Ray Data execution stats for the enriched dataset (look for Join and MapBatches(apply_speed_udf)) ---
+Operator 0 ReadFiles: 
+Operator 1 ListFiles: 6 tasks executed, 6 blocks produced in 0.02s
+* Remote wall time: 3.58ms min, 5.18ms max, 4.45ms mean, 26.7ms total
+* Output num rows per block: 1 min, 1 max, 1 mean, 6 total
+Operator 2 ReadFilesParquetV2->MapBatches(cast_columns)->MapBatches(drop_nulls): 6 tasks executed, 20 blocks produced in 4.38s
+* Remote wall time: 11.09ms min, 957.91ms max, 276.81ms mean, 5.54s total
+* Output num rows per block: 10710 min, 1048576 max, 917805 mean, 18356108 total
+Operator 3 Sort: executed in 49.13s
+	* Remote wall time: 4.95ms min, 1.0s max, 458.23ms mean, 9.16s total
+	* Output num rows per block: 10710 min, 1048576 max, 917805 mean, 18356108 total
+	* Remote wall time: 43.0ms min, 599.97ms max, 228.06ms mean, 4.56s total
+	* Output num rows per block: 368656 min, 1466137 max, 917805 mean, 18356108 total
+Operator 4 MapBatches(drop_duplicate_rows)->MapBatches(filter_and_format)->MapBatches(enforce_types): 20 tasks executed, 30 blocks produced in 19.63s
+* Remote wall time: 44.24ms min, 1.84s max, 722.08ms mean, 21.66s total
+* Output num rows per block: 2642 min, 1002193 max, 595689 mean, 17870679 total
+Operator 5 ReadCSV->SplitBlocks(8): 1 tasks executed, 8 blocks produced in 0.05s
+* Remote wall time: 178.94us min, 8.15ms max, 1.21ms mean, 9.7ms total
+* Output num rows per block: 33 min, 34 max, 33 mean, 265 total
+Operator 6 MapBatches(rename): 8 tasks executed, 8 blocks produced in 13.05s
+* Remote wall time: 5.26ms min, 18.55ms max, 9.27ms mean, 74.19ms total
+* Output num rows per block: 33 min, 34 max, 33 mean, 265 total
+Operator 7 Join(num_partitions=32): executed in 71.66s
+	* Remote wall time: 17.15ms min, 8.75s max, 2.3s mean, 87.3s total
+	* Output num rows per block: 33 min, 1002193 max, 470288 mean, 17870944 total
+	* Remote wall time: 894.05us min, 519.69ms max, 119.48ms mean, 5.26s total
+	* Output num rows per block: 3563 min, 761791 max, 406151 mean, 17870679 total
+Operator 8 ReadCSV->SplitBlocks(8): 1 tasks executed, 8 blocks produced in 0.21s
+* Remote wall time: 131.49us min, 180.61ms max, 22.72ms mean, 181.72ms total
+* Output num rows per block: 33 min, 34 max, 33 mean, 265 total
+Operator 9 MapBatches(rename): 8 tasks executed, 8 blocks produced in 6.26s
+* Remote wall time: 5.73ms min, 16.34ms max, 9.0ms mean, 71.99ms total
+* Output num rows per block: 33 min, 34 max, 33 mean, 265 total
+Operator 10 Join(num_partitions=32): executed in 409.83s
+Operator 11 MapBatches(apply_speed_udf): 51 tasks executed, 52 blocks produced in 42.51s
+* Remote wall time: 963.5us min, 2.5s max, 975.15ms mean, 50.71s total
+* Output num rows per block: 13777 min, 588089 max, 343561 mean, 17865181 total
+[export]   written to /opt/spark-data/output/ray  (335.92s)
+
+TOTAL wall-clock (ingest -> export): 1187.64s
+
+Average speed per pickup hour:
+ pickup_hour  avg_speed_hour
+           0         14.3722
+           1         13.9126
+           2         13.8982
+           3          15.001
+           4         18.1807
+           5         19.7756
+           6         16.2764
+           7         12.8974
+           8         10.8969
+           9          10.576
+          10         10.3414
+          11          9.8006
+          12          9.7242
+          13          9.8363
+          14          9.5723
+          15          9.3447
+          16          9.5025
+          17          9.3969
+          18          9.9148
+          19         11.0773
+          20         12.0365
+          21         12.4594
+          22          12.848
+          23         13.9074
+
+--- UDF deep-dive (cleaned rows: 17,870,679, best of 2)
+  native         1.88s   sum=197088783.71  non-null=17,865,181
+  python_udf    15.57s   sum=197088783.64  non-null=17,865,181
+  Python per-row overhead: 13.69s (88% of the Python UDF time)
+
+Metrics appended to /opt/spark-results/ray_runs.jsonl

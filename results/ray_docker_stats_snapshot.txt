@@ -1,0 +1,4 @@
+CONTAINER ID   NAME           CPU %     MEM USAGE / LIMIT   MEM %     NET I/O           BLOCK I/O         PIDS
+d3cbbdd45945   ray_head       32.99%    1.293GiB / 3GiB     43.09%    8.82MB / 18.3MB   42.4MB / 84.5MB   1017
+a4db75abd941   ray_worker_1   15.25%    1.629GiB / 3GiB     54.31%    3.26GB / 3.49GB   4.14GB / 6.84GB   542
+cc31fe1d05b7   ray_worker_2   17.26%    1.696GiB / 3GiB     56.54%    3.49GB / 3.26GB   4.45GB / 6.59GB   542

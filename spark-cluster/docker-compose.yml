@@ -1,0 +1,64 @@
+#version: "3.3"
+services:
+  spark-master:
+    build: .
+    image: a3-spark:3.3.4
+    container_name: spark_master
+    ports:
+      - "9090:8080"
+      - "7077:7077"
+      - "4040:4040"
+    volumes:
+       - ../apps:/opt/spark-apps
+       - ../data:/opt/spark-data
+       - ../results:/opt/spark-results
+    environment:
+      - SPARK_LOCAL_IP=spark-master
+      - SPARK_WORKLOAD=master
+    mem_limit: 3g
+  spark-worker-a:
+    image: a3-spark:3.3.4
+    container_name: spark_worker_a
+    ports:
+      - "9091:8080"
+      - "7000:7000"
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2G
+      - SPARK_DRIVER_MEMORY=1G
+      - SPARK_EXECUTOR_MEMORY=2G
+      - SPARK_WORKLOAD=worker
+      - SPARK_LOCAL_IP=spark-worker-a
+    volumes:
+       - ../apps:/opt/spark-apps
+       - ../data:/opt/spark-data
+       - ../results:/opt/spark-results
+
+    cpus: 2
+    mem_limit: 3g
+  spark-worker-b:
+    image: a3-spark:3.3.4
+    container_name: spark_worker_b
+    ports:
+      - "9092:8080"
+      - "7001:7000"
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2G
+      - SPARK_DRIVER_MEMORY=1G
+      - SPARK_EXECUTOR_MEMORY=2G
+      - SPARK_WORKLOAD=worker
+      - SPARK_LOCAL_IP=spark-worker-b
+    volumes:
+        - ../apps:/opt/spark-apps
+        - ../data:/opt/spark-data
+        - ../results:/opt/spark-results
+
+    cpus: 2
+    mem_limit: 3g

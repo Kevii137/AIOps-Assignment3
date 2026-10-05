@@ -1,0 +1,41 @@
+services:
+  ray-head:
+    image: rayproject/ray:2.59.0-py312-cpu
+    container_name: ray_head
+    command: ray start --head --port=6379 --dashboard-host=0.0.0.0 --num-cpus=0 --object-store-memory=500000000 --block
+    ports:
+      - "8265:8265"
+    volumes:
+      - ../apps:/opt/spark-apps
+      - ../data:/opt/spark-data
+      - ../results:/opt/spark-results
+    shm_size: 1.5gb
+    mem_limit: 3g
+
+  ray-worker-1:
+    image: rayproject/ray:2.59.0-py312-cpu
+    container_name: ray_worker_1
+    command: ray start --address=ray-head:6379 --num-cpus=2 --object-store-memory=500000000 --block
+    depends_on:
+      - ray-head
+    volumes:
+      - ../apps:/opt/spark-apps
+      - ../data:/opt/spark-data
+      - ../results:/opt/spark-results
+    shm_size: 1.5gb
+    cpus: 2
+    mem_limit: 3g
+
+  ray-worker-2:
+    image: rayproject/ray:2.59.0-py312-cpu
+    container_name: ray_worker_2
+    command: ray start --address=ray-head:6379 --num-cpus=2 --object-store-memory=500000000 --block
+    depends_on:
+      - ray-head
+    volumes:
+      - ../apps:/opt/spark-apps
+      - ../data:/opt/spark-data
+      - ../results:/opt/spark-results
+    shm_size: 1.5gb
+    cpus: 2
+    mem_limit: 3g

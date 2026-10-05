@@ -1,0 +1,11 @@
+# Spark benchmark run 1 (6 months), terminal output -- physical plan omitted (see screenshots 06_*)
+Spark version: 3.3.4 | master: spark://spark-master:7077 | months: [1, 2, 3, 4, 5, 6]
+[ingest]   20,332,093 raw rows from 6 file(s), partitions=6  (7.61s)
+[cleanse]  17,870,679 rows kept (2,461,414 dropped)  (46.44s)
+[transform] 17,865,181 rows after join + UDF  (83.15s)
+[export]   written to /opt/spark-data/output/spark  (22.35s)
+TOTAL wall-clock (ingest -> export): 159.73s
+--- UDF deep-dive (cleaned rows: 17,870,679, best of 2)
+  native         2.17s   sum=197088784.95  non-null=17,865,181
+  python_udf    12.74s   sum=197088783.64  non-null=17,865,181
+  JVM<->Python overhead: 10.57s (83% of the Python UDF time)
